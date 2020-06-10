@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  leanbase:
+    container_name: leanbase
+    build:
+      context: ./DockerFiles/base
+      dockerfile: Dockerfile
+    environment:
+      - "TS=Europe/Berlin"
+      - DEBIAN_FRONTEND=noninteractive
+    image: img_leanbase
+  pow:
+    container_name: pow
+    depends_on:
+      - leanbase
+    build:
+      context: ./DockerFiles/PoW
+      dockerfile: Dockerfile
+    image: img_pow
+    environment:
+      - "TS=Europe/Berlin"
+      - DEBIAN_FRONTEND=noninteractive
+  node1:
+    container_name: Node1
+    depends_on:
+      - pow
+    build:
+      context: ./DockerFiles/PoW/Node1
+      dockerfile: Dockerfile
+    image: img_node1
+    environment:
+      - "TS=Europe/Berlin"
+      - DEBIAN_FRONTEND=noninteractive
+    ports:
+     - "127.0.0.1:8545:8545"
+     - "172.18.0.1:8545:8545" #rpcPort
+     - "172.18.0.1:8546:8546" #webSocket-Port
+     - "172.18.0.1:30403:30403" #DiscoveryPort
+    volumes:
+      - /share1:/home/root/ethereum/share2
+    tty: true
+    stdin_open: true
+  node2:
+    container_name: Node2
+    depends_on:
+      - pow
+    build:
+      context: ./DockerFiles/PoW/Node2
+      dockerfile: Dockerfile
+    environment:
+        - "TS=Europe/Berlin"
+        - DEBIAN_FRONTEND=noninteractive
+    image: img_node2
+    ports:
+     - "172.18.0.1:8555:8555"
+     - "172.18.0.1:8556:8556"
+     - "172.18.0.1:30503:30503" #DiscoveryPort
+    volumes:
+      - /share1:/home/root/ethereum/share2
+    tty: true
+    stdin_open: true
+ 
+
