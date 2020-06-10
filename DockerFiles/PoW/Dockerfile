@@ -24,12 +24,13 @@ RUN add-apt-repository -y ppa:ethereum/ethereum && \
 
 
 #7-10 run Node and Generate DAG by mining
-RUN geth --datadir="./node"  init Genesis.json && \
-    sleep 2
-CMD node.sh && \
+	RUN geth --datadir="./node"  init Genesis.json
+	RUN pm2 start node.sh && \
 	sleep 4 && \
 	echo "personal.newAccount('asd'); miner.start(); admin.sleepBlocks(10); miner.stop()" | \
 	geth attach ipc:./node/geth.ipc
 
+	#RUN	echo "personal.newAccount('asd'); miner.start(); admin.sleepBlocks(10); miner.stop()" | \
+	#RUN	pm2 stop node
 
 	RUN rm -rf node/
